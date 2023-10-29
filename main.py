@@ -13,7 +13,7 @@ import database
 
 
 
-app = FastAPI()
+app = FastAPI(docs_url="/", redoc_url=None)
 
 models.Base.metadata.create_all(bind=engine)
 
