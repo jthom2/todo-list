@@ -3,4 +3,6 @@ sqlalchemy==1.4.49
 pydantic==1.10.13
 uvicorn==0.23.2
 fastapi-limiter==0.1.5
+python-decouple==3.8
+psycopg2==2.9.9
 

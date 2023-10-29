@@ -1,3 +1,4 @@
+import redis.asyncio as redis
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from models import Todo, TodoModel
@@ -5,9 +6,9 @@ from database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from fastapi_limiter import FastAPILimiter
 from fastapi_limiter.depends import RateLimiter
+from decouple import config
 import models
 import database
-
 
 
 
@@ -18,8 +19,9 @@ models.Base.metadata.create_all(bind=engine)
 
 @app.on_event("startup")
 async def startup():
-    redis = redis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
-    await FastAPILimiter.init(redis)
+    pool = redis.ConnectionPool.from_url(config('REDIS_URL'))
+    redis_client = redis.StrictRedis(connection_pool=pool)
+    await FastAPILimiter.init(redis_client)
 
 def get_db():
     try:
