@@ -3,8 +3,11 @@ from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from models import Todo, TodoModel
 from database import engine, SessionLocal
 from sqlalchemy.orm import Session
+from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
 import models
 import database
+
 
 
 
@@ -13,6 +16,11 @@ app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
+@app.on_event("startup")
+async def startup():
+    redis = redis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+    await FastAPILimiter.init(redis)
+
 def get_db():
     try:
         db = SessionLocal()
@@ -20,17 +28,17 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/")
+@app.get("/", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def root():
     return {"message": "Hello World"}  
 
 
-@app.get("/todos")
+@app.get("/todos", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def get_todos(db: Session = Depends(get_db)):
     return db.query(TodoModel).all()
 
 
-@app.get("/todos/{todo_id}")
+@app.get("/todos/{todo_id}", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def get_todo_by_id(todo_id: int, db: Session = Depends(get_db)):
     todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
     if not todo:
@@ -43,7 +51,7 @@ async def get_todo_by_id(todo_id: int, db: Session = Depends(get_db)):
 
 
 
-@app.post("/todos")
+@app.post("/todos", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def create_todo(item: str, db: Session = Depends(get_db)):
     todo = TodoModel(item=item)
     db.add(todo)
@@ -66,7 +74,7 @@ async def update_todos(todo_id: int, item: str, db: Session = Depends(get_db)):
     }
     return todo_dict
 
-@app.delete("/todos/{todo_id}")
+@app.delete("/todos/{todo_id}", dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 async def delete_todos(todo_id: int, db: Session = Depends(get_db)):
     todo = db.query(TodoModel).filter(TodoModel.id == todo_id).first()
     if not todo:
