@@ -8,7 +8,7 @@ A simple Todo application built using FastAPI and SQLAlchemy. This API allows fo
 - **Read Todos**: Retrieve a list of all Todo items or get a specific Todo by its ID.
 - **Update Todo**: Modify the content of a specific Todo item.
 - **Delete Todo**: Remove a specific Todo item from the database.
-- **Rate Limiting**: Caches requests through redis and returns 403 if rate limit is exceeded
+- **Rate Limiting**: Caches requests through redis and returns 429 if rate limit is exceeded
 
 ## Tech Stack
 
