@@ -11,8 +11,6 @@ import models
 import database
 
 
-
-
 app = FastAPI(docs_url="/", redoc_url=None)
 
 models.Base.metadata.create_all(bind=engine)
@@ -84,6 +82,5 @@ async def delete_todos(todo_id: int, db: Session = Depends(get_db)):
     db.delete(todo)
     db.commit()
     return {"message": "deleted"}
-
 
 
